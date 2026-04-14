@@ -48,6 +48,7 @@ type Handler struct {
 	envSecret           string
 	logDir              string
 	postAuthHook        coreauth.PostAuthHook
+	reloadAuthFilesFunc func()
 }
 
 // NewHandler creates a new management handler instance.
@@ -132,6 +133,11 @@ func (h *Handler) SetLogDirectory(dir string) {
 // SetPostAuthHook registers a hook to be called after auth record creation but before persistence.
 func (h *Handler) SetPostAuthHook(hook coreauth.PostAuthHook) {
 	h.postAuthHook = hook
+}
+
+// SetReloadAuthFilesFunc registers a callback to trigger auth files reload.
+func (h *Handler) SetReloadAuthFilesFunc(fn func()) {
+	h.reloadAuthFilesFunc = fn
 }
 
 // Middleware enforces access control for management endpoints.

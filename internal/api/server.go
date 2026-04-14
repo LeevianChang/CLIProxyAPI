@@ -177,6 +177,8 @@ type Server struct {
 	keepAliveOnTimeout func()
 	keepAliveHeartbeat chan struct{}
 	keepAliveStop      chan struct{}
+
+	reloadAuthFilesCallback func()
 }
 
 // NewServer creates and initializes a new API server instance.
@@ -635,6 +637,7 @@ func (s *Server) registerManagementRoutes() {
 		mgmt.PATCH("/auth-files/status", s.mgmt.PatchAuthFileStatus)
 		mgmt.PATCH("/auth-files/fields", s.mgmt.PatchAuthFileFields)
 		mgmt.POST("/vertex/import", s.mgmt.ImportVertexCredential)
+		mgmt.POST("/reload-auth-files", s.mgmt.ReloadAuthFiles)
 
 		mgmt.GET("/anthropic-auth-url", s.mgmt.RequestAnthropicToken)
 		mgmt.GET("/codex-auth-url", s.mgmt.RequestCodexToken)
@@ -1022,10 +1025,15 @@ func (s *Server) UpdateClients(cfg *config.Config) {
 }
 
 func (s *Server) SetWebsocketAuthChangeHandler(fn func(bool, bool)) {
-	if s == nil {
-		return
-	}
 	s.wsAuthChanged = fn
+}
+
+// SetReloadAuthFilesCallback registers a callback to trigger auth files reload.
+func (s *Server) SetReloadAuthFilesCallback(fn func()) {
+	s.reloadAuthFilesCallback = fn
+	if s.mgmt != nil {
+		s.mgmt.SetReloadAuthFilesFunc(fn)
+	}
 }
 
 // (management handlers moved to internal/api/handlers/management)

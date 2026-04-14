@@ -678,6 +678,15 @@ func (s *Service) Run(ctx context.Context) error {
 	}
 	watcherWrapper.SetConfig(s.cfg)
 
+	// Register reload auth files callback for management API
+	if s.server != nil {
+		s.server.SetReloadAuthFilesCallback(func() {
+			if s.watcher != nil {
+				s.watcher.ReloadAuthFiles()
+			}
+		})
+	}
+
 	watcherCtx, watcherCancel := context.WithCancel(context.Background())
 	s.watcherCancel = watcherCancel
 	if err = watcherWrapper.Start(watcherCtx); err != nil {

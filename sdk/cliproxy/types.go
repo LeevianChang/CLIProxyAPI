@@ -89,6 +89,7 @@ type WatcherWrapper struct {
 	snapshotAuths         func() []*coreauth.Auth
 	setUpdateQueue        func(queue chan<- watcher.AuthUpdate)
 	dispatchRuntimeUpdate func(update watcher.AuthUpdate) bool
+	reloadAuthFiles       func()
 }
 
 // Start proxies to the underlying watcher Start implementation.
@@ -145,4 +146,12 @@ func (w *WatcherWrapper) SetAuthUpdateQueue(queue chan<- watcher.AuthUpdate) {
 		return
 	}
 	w.setUpdateQueue(queue)
+}
+
+// ReloadAuthFiles triggers a manual reload of all authentication files.
+func (w *WatcherWrapper) ReloadAuthFiles() {
+	if w == nil || w.reloadAuthFiles == nil {
+		return
+	}
+	w.reloadAuthFiles()
 }

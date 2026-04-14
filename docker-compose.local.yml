@@ -1,12 +1,15 @@
 services:
   cli-proxy-api:
-    # 远程部署配置：从 GitHub Container Registry 拉取
-    # 格式：ghcr.io/github-username/repository:tag
-    image: ${CLI_PROXY_IMAGE:-ghcr.io/leevianchang/cliproxyapi:latest}
-    pull_policy: always
+    # 本地开发配置：强制本地构建，不使用远程镜像
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: ${VERSION:-dev}
+        COMMIT: ${COMMIT:-local}
+        BUILD_DATE: ${BUILD_DATE:-}
+    image: cli-proxy-api:local
     container_name: cli-proxy-api
-    # env_file:
-    #   - .env
     environment:
       DEPLOY: ${DEPLOY:-}
     ports:

@@ -157,3 +157,19 @@ func (w *Watcher) SnapshotCoreAuths() []*coreauth.Auth {
 	w.clientsMutex.RUnlock()
 	return snapshotCoreAuths(cfg, w.authDir)
 }
+
+// ReloadAuthFiles triggers a manual reload of all authentication files.
+// This forces a rescan of the auth directory and refreshes all auth clients.
+func (w *Watcher) ReloadAuthFiles() {
+	w.clientsMutex.RLock()
+	cfg := w.config
+	w.clientsMutex.RUnlock()
+
+	if cfg == nil {
+		log.Error("config is nil, cannot reload auth files")
+		return
+	}
+
+	log.Info("manual auth files reload triggered")
+	w.reloadClients(true, nil, false)
+}
